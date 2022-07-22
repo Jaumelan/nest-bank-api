@@ -1,11 +1,9 @@
-import { Trim } from 'class-sanitizer';
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class LoginDto {
-  @Trim()
   @IsNotEmpty()
-  @IsEmail()
-  public readonly email: string;
+  @IsString()
+  public readonly cpf: string;
 
   @IsString()
   @Length(6, 10)
