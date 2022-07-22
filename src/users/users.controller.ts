@@ -21,13 +21,13 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Post('signup')
-  @UseGuards(AuthGuardService)
   @UseInterceptors(ClassSerializerInterceptor)
   async signup(@Body() createUserDto: CreateUserDto): Promise<Users> {
     return this.userService.create(createUserDto);
   }
 
   @Get('/:id')
+  @UseGuards(AuthGuardService)
   async getUser(@Param('id') id: string): Promise<Users> {
     const user = this.userService.findUser(parseInt(id));
 

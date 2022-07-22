@@ -15,7 +15,7 @@ import { Users } from '../user.entity';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: 'devZapter',
+        secret: configService.get<string>('JWT_KEY'),
         signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES') },
       }),
     }),

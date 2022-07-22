@@ -5,11 +5,8 @@ import {
   Post,
   UseInterceptors,
   ClassSerializerInterceptor,
-  UseGuards,
-  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuardService } from './auth.guard';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { Users } from '../user.entity';
 import { LoginDto } from './dtos/login.dto';
