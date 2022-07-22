@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { Users } from './users/user.entity';
+import { Accounts } from './accounts/account.entity';
 import { APP_PIPE } from '@nestjs/core';
 
 @Module({
@@ -20,7 +21,7 @@ import { APP_PIPE } from '@nestjs/core';
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [Users],
+        entities: [Accounts, Users],
         synchronize: true,
         password: configService.get<string>('DATABASE_PASSWORD'),
         migrations: ['./migrations/*.ts'],
