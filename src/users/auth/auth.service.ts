@@ -13,7 +13,17 @@ private readonly userRepository: Repository<Users>;
 
 @Inject(AuthHelper) private readonly authHelper: AuthHelper;
 
-public async register(createUserDto: CreateUserDto): Promise<Users | never> {
-    const {cpf} 
+public async register(body: CreateUserDto): Promise<Users | never> {
+    const {cpf, password} = body;
+    const user = await this.userRepository.findOne({where: {cpf}});
 
+    if (user) {
+        throw new HttpException('User already exists', HttpStatus.CONFLICT);
+    }
+
+    const newUser = {}
+    Object.assign(newUser, user);
+    newUser.password = this.authHelper.encodePassword(password)
+
+    
 }
