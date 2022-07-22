@@ -37,7 +37,7 @@ export class AccountsService {
     const accounts = await this.accountRepository.find({
       where: { user_id: id },
     });
-    if (!accounts) {
+    if (accounts.length == 0) {
       throw new NotFoundException("User doesn't have account");
     }
     return accounts;
@@ -52,5 +52,18 @@ export class AccountsService {
     }
     Object.assign(account, data);
     return this.accountRepository.save(account);
+  }
+
+  async deleteAccount(id: number): Promise<any> {
+    const account = await this.findAccount(id);
+
+    if (!id) {
+      throw new NotFoundException('Account id is required');
+    }
+
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+    return this.accountRepository.remove(account);
   }
 }

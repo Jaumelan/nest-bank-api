@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Param, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { Accounts } from './account.entity';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { AccountsService } from './accounts.service';
@@ -30,5 +38,9 @@ export class AccountsController {
   ): Promise<Accounts> {
     console.log(data);
     return this.accountService.updateAccount(parseInt(id), data);
+  }
+  @Delete('/:id')
+  async deleteAccount(@Param('id') id: string): Promise<Accounts> {
+    return this.accountService.deleteAccount(parseInt(id));
   }
 }

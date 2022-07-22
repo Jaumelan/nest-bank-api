@@ -23,6 +23,6 @@ export class Accounts {
   @Column()
   balance: number;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 }
