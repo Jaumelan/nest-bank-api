@@ -1,32 +1,32 @@
 import {
   IsEmail,
-  IsNotEmpty,
   IsString,
   Length,
   IsDateString,
+  IsOptional,
 } from 'class-validator';
 
-export class CreateUserDto {
-  @IsNotEmpty()
+export class UpdateUserDto {
+  @IsOptional()
   @IsString()
   @Length(4, 40)
   name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
   email: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @Length(11, 11)
   cpf: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @Length(6, 10)
   password: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsDateString()
   birthdate: Date;
 }
