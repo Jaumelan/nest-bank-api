@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Users } from './user.entity';
+import { Users } from './users.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { AuthGuardService } from './auth/auth.guard';
@@ -39,11 +39,13 @@ export class UsersController {
   }
 
   @Get('/cpf/:cpf')
+  @UseGuards(AuthGuardService)
   async getUserByCpf(@Param('cpf') cpf: string) {
     return this.userService.find(cpf);
   }
 
   @Patch('/:id')
+  @UseGuards(AuthGuardService)
   async updateUser(
     @Param('id') id: string,
     @Body() data: UpdateUserDto,

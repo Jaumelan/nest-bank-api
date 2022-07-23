@@ -1,6 +1,12 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from '../user.entity';
+import { Users } from '../users.entity';
 import { Repository } from 'typeorm';
 import { LoginDto } from './dtos/login.dto';
 import { CreateUserDto } from '../dtos/create-user.dto';
@@ -39,12 +45,13 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { cpf } });
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('User not found');
     }
 
     if (!this.authHelper.validatePassword(password, user.password)) {
       throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
     }
+
     return this.authHelper.generateToken(user);
   }
 

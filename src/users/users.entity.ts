@@ -1,7 +1,8 @@
 import { Exclude } from 'class-transformer';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Accounts } from '../accounts/account.entity';
 
-@Entity()
+@Entity({ name: 'users', schema: 'public' })
 export class Users {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,4 +22,7 @@ export class Users {
 
   @Column()
   cpf: string;
+
+  @OneToMany(() => Accounts, (account) => account.user_id)
+  accounts: Accounts[];
 }
