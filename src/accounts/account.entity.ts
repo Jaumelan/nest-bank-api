@@ -1,5 +1,6 @@
 import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Users } from '../users/users.entity';
+import { Transactions } from '../transactions/transaction.entity';
 
 @Entity({ name: 'accounts', schema: 'public' })
 export class Accounts {
@@ -18,7 +19,7 @@ export class Accounts {
   @Column()
   digit_account_v: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   balance: number;
 
   @Column()

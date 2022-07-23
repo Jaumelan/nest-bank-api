@@ -1,4 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Accounts } from './account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +13,7 @@ import { CreateAccountData } from './../utils/createAccountData';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { Users } from '../users/users.entity';
 import { AuthHelper } from '../users/auth/auth.helper';
+const bankId = 2;
 
 @Injectable()
 export class AccountsService {
@@ -56,7 +63,7 @@ export class AccountsService {
     });
     console.log(accounts);
     if (!accounts) {
-      throw new NotFoundException('User does not have account');
+      throw new NotFoundException('Account not found');
     }
     return accounts;
   }
@@ -73,7 +80,57 @@ export class AccountsService {
     if (!account) {
       throw new NotFoundException('Account not found');
     }
+    if (account.user_id !== user.id) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
     Object.assign(account, data);
+    return this.accountRepository.save(account);
+  }
+
+  async updateBalance(
+    id: number,
+    value: number,
+    user: Users,
+  ): Promise<Accounts> {
+    if (!id) {
+      throw new NotFoundException('Account id is required');
+    }
+    const account = await this.findAccount(id, user);
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+    if (account.user_id !== user.id) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
+    account.balance = Number(account.balance) + value;
+    return this.accountRepository.save(account);
+  }
+
+  async updateTransferBalance(id: number, value: number): Promise<Accounts> {
+    if (!id) {
+      throw new NotFoundException('Account id is required');
+    }
+    const account = await this.accountRepository.findOne({ where: { id } });
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    account.balance = Number(account.balance) + value;
+    return this.accountRepository.save(account);
+  }
+
+  async updateBankBalance(value: number): Promise<Accounts> {
+    const account = await this.accountRepository.findOne({
+      where: { id: bankId },
+    });
+
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    account.balance = Number(account.balance) + value;
     return this.accountRepository.save(account);
   }
 }
