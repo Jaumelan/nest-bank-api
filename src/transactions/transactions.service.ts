@@ -237,37 +237,51 @@ export class TransactionsService {
     const depositTransactions = await this.transactionRepository
       .createQueryBuilder()
       .select('*')
-      .where('transaction.dest_account_id = :id', { id: originAccount.id })
-      .andWhere('transaction.description = :description', {
+      .where('dest_account_id = :id', { id: originAccount.id })
+      .andWhere('description = :description', {
         description: 'deposit',
       })
-      .orderBy('transaction.date', 'DESC')
+      .orderBy('date', 'DESC')
+      .setParameter('dest_account_id', originAccount.id)
       .getRawMany();
 
-    const withdrawTrans = await this.transactionRepository
+    console.log(depositTransactions);
+    const withdrawTransactions = await this.transactionRepository
       .createQueryBuilder()
       .select('*')
-      .where('transaction.origin_account_id = :id', { id: originAccount.id })
-      .andWhere('transaction.description = :description', {
+      .where('dest_account_id = :id', { id: originAccount.id })
+      .andWhere('description = :description', {
         description: 'withdraw',
       })
-      .orderBy('transaction.date', 'DESC')
+      .orderBy('date', 'DESC')
+      .setParameter('dest_account_id', originAccount.id)
       .getRawMany();
 
-    const transferTrans = await this.transactionRepository
+    console.log('saque ', withdrawTransactions);
+    const transferTransactions = await this.transactionRepository
       .createQueryBuilder()
       .select('*')
-      .where('transaction.origin_account_id = :id', { id: originAccount.id })
-      .andWhere('transaction.description = :description', {
+      .where('origin_account_id = :id', { id: originAccount.id })
+      .andWhere('description = :description', {
         description: 'transfer',
       })
-      .orderBy('transaction.date', 'DESC')
+      .orderBy('date', 'DESC')
       .getRawMany();
 
-    const transactions = await this.transactionRepository
-      .createQueryBuilder()
-      .select('*')
-      .getRawMany();
+    const transactions = [
+      ...depositTransactions,
+      ...withdrawTransactions,
+      ...transferTransactions,
+    ];
+    transactions
+      .sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      })
+      .slice(0, 10);
+
+    /* const transactionsWithBalance = transactions.map(transaction => {
+      const { value, date } = transaction;
+      const balance */
 
     return transactions;
   }
