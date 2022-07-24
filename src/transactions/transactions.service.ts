@@ -9,10 +9,10 @@ import { Repository } from 'typeorm';
 import { Accounts } from '../accounts/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createTransactionDto } from './dtos/create-transaction.dto';
-import { AuthHelper } from '../users/auth/auth.helper';
 import { Transactions } from './transaction.entity';
 import { Users } from '../users/users.entity';
 import { AccountsService } from '../accounts/accounts.service';
+import { StatementDto } from './dtos/statement.dto';
 const fees = {
   deposit: 0.01,
   withdraw: 4,
@@ -210,5 +210,65 @@ export class TransactionsService {
 
     const transactionData = this.transactionRepository.create(data);
     return this.transactionRepository.save(transactionData);
+  }
+
+  async history(user: Users, statement: StatementDto) {
+    const { id } = user;
+    const { agency, account_number, digit_agency_v, digit_account_v } =
+      statement;
+
+    const originAccount = await this.accountRepository
+      .createQueryBuilder()
+      .select('*')
+      .from(Accounts, 'account')
+      .where('account.user_id = :id', { id })
+      .andWhere('account.agency = :agency', { agency })
+      .andWhere('account.account_number = :account_number', { account_number })
+      .andWhere('account.digit_agency_v = :digit_agency_v', { digit_agency_v })
+      .andWhere('account.digit_account_v = :digit_account_v', {
+        digit_account_v,
+      })
+      .getRawOne();
+
+    if (!originAccount) {
+      throw new NotFoundException('Origin account not found');
+    }
+
+    const depositTransactions = await this.transactionRepository
+      .createQueryBuilder()
+      .select('*')
+      .where('transaction.dest_account_id = :id', { id: originAccount.id })
+      .andWhere('transaction.description = :description', {
+        description: 'deposit',
+      })
+      .orderBy('transaction.date', 'DESC')
+      .getRawMany();
+
+    const withdrawTrans = await this.transactionRepository
+      .createQueryBuilder()
+      .select('*')
+      .where('transaction.origin_account_id = :id', { id: originAccount.id })
+      .andWhere('transaction.description = :description', {
+        description: 'withdraw',
+      })
+      .orderBy('transaction.date', 'DESC')
+      .getRawMany();
+
+    const transferTrans = await this.transactionRepository
+      .createQueryBuilder()
+      .select('*')
+      .where('transaction.origin_account_id = :id', { id: originAccount.id })
+      .andWhere('transaction.description = :description', {
+        description: 'transfer',
+      })
+      .orderBy('transaction.date', 'DESC')
+      .getRawMany();
+
+    const transactions = await this.transactionRepository
+      .createQueryBuilder()
+      .select('*')
+      .getRawMany();
+
+    return transactions;
   }
 }

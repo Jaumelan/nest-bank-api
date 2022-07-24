@@ -31,7 +31,7 @@ export class AccountsController {
   @Get('/user/')
   @UseGuards(AuthGuardService)
   async getAccounts(@LogedUser() user: Users): Promise<Accounts[]> {
-    return this.accountService.findAccounts(user);
+    return this.accountService.findAccounts(user.id);
   }
 
   @Get('/:id')

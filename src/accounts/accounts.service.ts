@@ -13,7 +13,7 @@ import { CreateAccountData } from './../utils/createAccountData';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { Users } from '../users/users.entity';
 import { AuthHelper } from '../users/auth/auth.helper';
-const bankId = 2;
+const bankId = 3;
 
 @Injectable()
 export class AccountsService {
@@ -56,12 +56,11 @@ export class AccountsService {
     return account;
   }
 
-  async findAccounts(user: Users): Promise<Accounts[]> {
-    console.log(user);
+  async findAccounts(id: number): Promise<Accounts[]> {
     const accounts = await this.accountRepository.find({
-      where: { user_id: user.id },
+      where: { user_id: id },
     });
-    console.log(accounts);
+
     if (!accounts) {
       throw new NotFoundException('Account not found');
     }

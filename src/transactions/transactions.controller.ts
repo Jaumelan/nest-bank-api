@@ -1,10 +1,11 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { Transactions } from './transaction.entity';
 import { TransactionsService } from './transactions.service';
 import { AuthGuardService } from '../users/auth/auth.guard';
 import { LogedUser } from '../decorators/loged-user.decorator';
 import { createTransactionDto } from './dtos/create-transaction.dto';
 import { Users } from '../users/users.entity';
+import { StatementDto } from './dtos/statement.dto';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -35,5 +36,14 @@ export class TransactionsController {
     @LogedUser() user: Users,
   ): Promise<Transactions> {
     return this.transactionsService.createTransfer(createData, user);
+  }
+
+  @Post('history')
+  @UseGuards(AuthGuardService)
+  async transactionHistory(
+    @LogedUser() user: Users,
+    @Body() statement: StatementDto,
+  ) {
+    return this.transactionsService.history(user, statement);
   }
 }

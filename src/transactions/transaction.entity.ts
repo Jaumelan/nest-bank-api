@@ -1,4 +1,3 @@
-import { type } from 'os';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'transactions', schema: 'public' })
