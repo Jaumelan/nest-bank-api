@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
-import { Users } from '../users.entity';
+import { RegisterRsp } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 
 @Controller('auth')
@@ -18,7 +18,7 @@ export class AuthController {
 
   @Post('register')
   @UseInterceptors(ClassSerializerInterceptor)
-  private register(@Body() body: CreateUserDto): Promise<Users | never> {
+  private register(@Body() body: CreateUserDto): Promise<RegisterRsp | never> {
     return this.authService.register(body);
   }
 

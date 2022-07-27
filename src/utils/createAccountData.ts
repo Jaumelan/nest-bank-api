@@ -1,7 +1,6 @@
-import { CreateAccountDto } from 'src/accounts/dtos/create-account.dto';
+//import { CreateAccountDto } from 'src/accounts/dtos/create-account.dto';
 
 class CreateAccountData {
-  constructor(private createAccountDto: CreateAccountDto) {}
   createAgencyAccount(quantity: number): string {
     const numbers = [];
     for (let i = 0; i < quantity; i += 1) {

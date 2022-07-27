@@ -1,6 +1,6 @@
 import {
   Controller,
-  Post,
+  //Post,
   Body,
   Get,
   Param,
@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Accounts } from './account.entity';
 import { LogedUser } from '../decorators/loged-user.decorator';
-import { CreateAccountDto } from './dtos/create-account.dto';
+//import { CreateAccountDto } from './dtos/create-account.dto';
 import { AuthGuardService } from '../users/auth/auth.guard';
 import { AccountsService } from './accounts.service';
 import { UpdateAccountDto } from './dtos/update-account.dto';
@@ -19,14 +19,14 @@ import { Users } from '../users/users.entity';
 export class AccountsController {
   constructor(private accountService: AccountsService) {}
 
-  @Post('create')
+  /* @Post('create')
   @UseGuards(AuthGuardService)
   async createAccount(
     @Body() createAccount: CreateAccountDto,
     @LogedUser() user: Users,
   ): Promise<Accounts> {
     return this.accountService.create(createAccount, user);
-  }
+  } */
 
   @Get('/user/')
   @UseGuards(AuthGuardService)

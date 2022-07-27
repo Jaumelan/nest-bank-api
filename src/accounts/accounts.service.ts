@@ -8,7 +8,7 @@ import {
 import { Repository } from 'typeorm';
 import { Accounts } from './account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateAccountDto } from './dtos/create-account.dto';
+//import { CreateAccountDto } from './dtos/create-account.dto';
 import { CreateAccountData } from './../utils/createAccountData';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { Users } from '../users/users.entity';
@@ -23,16 +23,11 @@ export class AccountsService {
     @Inject(AuthHelper) private authHelper: AuthHelper,
   ) {}
 
-  async create(
-    createAccountDto: CreateAccountDto,
-    user: Users,
-  ): Promise<Accounts> {
+  async create(password: string, user: Users): Promise<Accounts> {
     const account = this.accountRepository.create(
-      new this.createAccoundData(createAccountDto).generateData(),
+      new this.createAccoundData().generateData(),
     );
-    account.password = this.authHelper.encodePassword(
-      createAccountDto.password,
-    );
+    account.password = this.authHelper.encodePassword(password);
 
     account.user_id = user.id;
     const newAccount = this.accountRepository.create(account);

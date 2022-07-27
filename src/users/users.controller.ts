@@ -1,26 +1,26 @@
 import {
   Controller,
-  Post,
+  /*  Post,
   Body,
   Get,
   Patch,
   Param,
   NotFoundException,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors, */
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Users } from './users.entity';
+/* import { Users } from './users.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { AuthGuardService } from './auth/auth.guard';
-import { ClassSerializerInterceptor } from '@nestjs/common';
+import { ClassSerializerInterceptor } from '@nestjs/common'; */
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
 
-  @Post('signup')
+  /* @Post('signup')
   @UseInterceptors(ClassSerializerInterceptor)
   async signup(@Body() createUserDto: CreateUserDto): Promise<Users> {
     return this.userService.create(createUserDto);
@@ -51,5 +51,5 @@ export class UsersController {
     @Body() data: UpdateUserDto,
   ): Promise<Users> {
     return this.userService.update(parseFloat(id), data);
-  }
+  } */
 }

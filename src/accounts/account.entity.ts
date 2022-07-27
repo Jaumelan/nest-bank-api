@@ -1,8 +1,10 @@
+import { Exclude } from 'class-transformer';
 import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Users } from '../users/users.entity';
 
 @Entity({ name: 'accounts', schema: 'public' })
 export class Accounts {
+  @Exclude()
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -24,7 +26,7 @@ export class Accounts {
   @Column({ select: false })
   password: string;
 
-  @Column()
+  @Column({ select: false })
   @ManyToOne(() => Users, (user) => user.accounts)
   user_id: number;
 }

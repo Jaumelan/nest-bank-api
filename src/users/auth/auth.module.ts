@@ -8,6 +8,8 @@ import { AuthService } from './auth.service';
 import { AuthHelper } from './auth.helper';
 import { JwtStrategy } from './auth.strategy';
 import { Users } from '../users.entity';
+import { Accounts } from '../../accounts/account.entity';
+import { AccountsService } from 'src/accounts/accounts.service';
 
 @Module({
   imports: [
@@ -19,9 +21,9 @@ import { Users } from '../users.entity';
         signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES') },
       }),
     }),
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([Users, Accounts]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthHelper, JwtStrategy],
+  providers: [AuthService, AuthHelper, JwtStrategy, AccountsService],
 })
 export class AuthModule {}
