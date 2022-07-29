@@ -6,8 +6,9 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { TransactionsModule } from './transactions/transactions.module';
-import { Users } from './users/user.entity';
+import { Users } from './users/users.entity';
 import { Accounts } from './accounts/account.entity';
+import { Transactions } from './transactions/transaction.entity';
 import { APP_PIPE } from '@nestjs/core';
 
 @Module({
@@ -21,7 +22,7 @@ import { APP_PIPE } from '@nestjs/core';
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
         database: configService.get<string>('DATABASE_NAME'),
-        entities: [Accounts, Users],
+        entities: [Accounts, Users, Transactions],
         synchronize: true,
         password: configService.get<string>('DATABASE_PASSWORD'),
         migrations: ['./migrations/*.ts'],
@@ -41,8 +42,14 @@ import { APP_PIPE } from '@nestjs/core';
       provide: APP_PIPE,
       useValue: new ValidationPipe({
         whitelist: true,
+        transform: true,
       }),
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly configService: ConfigService) {}
+  configure(consumer: any) {
+    consumer.apply(this.configService.get<string>('JWT_KEY')).forRoutes('*');
+  }
+}

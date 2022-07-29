@@ -15,11 +15,14 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async findUser(id: number): Promise<Users> {
-    if (!id) {
-      throw new NotFoundException('User Id is required');
+  async findUser(user: Users): Promise<Users> {
+    const userData = await this.userRepository.findOne({
+      where: { id: user.id },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
-    return this.userRepository.findOne({ where: { id } });
+    return userData;
   }
 
   async find(cpf: string): Promise<Users[]> {
@@ -29,16 +32,13 @@ export class UsersService {
     return this.userRepository.find({ where: { cpf } });
   }
 
-  async update(id: number, data: CreateUserDto) {
-    if (!id) {
-      throw new NotFoundException('User Id is required');
-    }
-    const user = await this.findUser(id);
-    if (!user) {
+  async update(user: Users, data: CreateUserDto) {
+    const userData = await this.findUser(user);
+    if (!userData) {
       throw new NotFoundException('User not found');
     }
 
-    Object.assign(user, data);
+    Object.assign(userData, data);
     return this.userRepository.save(user);
   }
 }

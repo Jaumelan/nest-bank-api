@@ -1,12 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+//import { Exclude } from 'class-transformer';
+import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Users } from '../users/users.entity';
 
-@Entity()
+@Entity({ name: 'accounts', schema: 'public' })
 export class Accounts {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  user_id: number;
+  account_number: string;
 
   @Column()
   agency: string;
@@ -15,14 +17,15 @@ export class Accounts {
   digit_agency_v: string;
 
   @Column()
-  account_number: string;
-
-  @Column()
   digit_account_v: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   balance: number;
 
-  @Column()
+  @Column({ select: false })
   password: string;
+
+  @Column()
+  @ManyToOne(() => Users, (user) => user.accounts)
+  user_id: number;
 }

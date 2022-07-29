@@ -13,6 +13,7 @@ export class AuthGuardService extends AuthGuard('jwt') implements IAuthGuard {
     await super.canActivate(context);
 
     const { user }: Request = context.switchToHttp().getRequest();
+    //console.log(context.switchToHttp().getRequest());
 
     return user ? true : false;
   }

@@ -37,11 +37,13 @@ export class AuthHelper {
   //Generate JWT token
   public generateToken(user: Users): string {
     const payload = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      cpf: user.cpf,
-      birthdate: user.birthdate,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        cpf: user.cpf,
+        birthdate: user.birthdate,
+      },
     };
     return this.jwt.sign(payload);
   }
