@@ -83,6 +83,20 @@ export class TransactionsService {
       dest_account_id,
     };
 
+    const bankDepositdata = {
+      description: 'deposit fee',
+      value: fees.deposit,
+      date: new Date(),
+      origin_account_id: origin_account_id,
+      dest_account_id: 2,
+    };
+
+    const bankDeposit = await this.transactionRepository.save(bankDepositdata);
+
+    if (!bankDeposit) {
+      throw new HttpException('Bank fee', HttpStatus.NOT_MODIFIED);
+    }
+
     const bank = await this.accountsService.updateBankBalance(
       value * fees.deposit,
     );
@@ -138,6 +152,22 @@ export class TransactionsService {
       origin_account_id,
       dest_account_id,
     };
+
+    const bankTransferdata = {
+      description: 'withdraw fee',
+      value: fees.withdraw,
+      date: new Date(),
+      origin_account_id: origin_account_id,
+      dest_account_id: 2,
+    };
+
+    const bankTransfer = await this.transactionRepository.save(
+      bankTransferdata,
+    );
+
+    if (!bankTransfer) {
+      throw new HttpException('Bank fee', HttpStatus.NOT_MODIFIED);
+    }
 
     const bank = await this.accountsService.updateBankBalance(fees.withdraw);
 
@@ -219,6 +249,22 @@ export class TransactionsService {
       dest_account_id: destAccount.id,
     };
 
+    const bankTransferdata = {
+      description: 'transfer fee',
+      value: fees.transfer,
+      date: new Date(),
+      origin_account_id: origin_account_id,
+      dest_account_id: 2,
+    };
+
+    const bankTransfer = await this.transactionRepository.save(
+      bankTransferdata,
+    );
+
+    if (!bankTransfer) {
+      throw new HttpException('Bank fee', HttpStatus.NOT_MODIFIED);
+    }
+
     const bank = await this.accountsService.updateBankBalance(fees.transfer);
 
     if (!bank) {
@@ -281,7 +327,6 @@ export class TransactionsService {
       .setParameter('dest_account_id', originAccount.id)
       .getRawMany();
 
-    console.log(depositTransactions);
     const withdrawTransactions = await this.transactionRepository
       .createQueryBuilder()
       .select('*')
@@ -293,7 +338,6 @@ export class TransactionsService {
       .setParameter('dest_account_id', originAccount.id)
       .getRawMany();
 
-    console.log('saque ', withdrawTransactions);
     const transferTransactions = await this.transactionRepository
       .createQueryBuilder()
       .select('*')
@@ -304,10 +348,43 @@ export class TransactionsService {
       .orderBy('date', 'DESC')
       .getRawMany();
 
+    const bankTransferFees = await this.transactionRepository
+      .createQueryBuilder()
+      .select('*')
+      .where('origin_account_id = :id', { id: originAccount.id })
+      .andWhere('description = :description', {
+        description: 'transfer fee',
+      })
+      .orderBy('date', 'DESC')
+      .getRawMany();
+
+    const bankDepositFees = await this.transactionRepository
+      .createQueryBuilder()
+      .select('*')
+      .where('origin_account_id = :id', { id: originAccount.id })
+      .andWhere('description = :description', {
+        description: 'deposit fee',
+      })
+      .orderBy('date', 'DESC')
+      .getRawMany();
+
+    const bankWithdrawFees = await this.transactionRepository
+      .createQueryBuilder()
+      .select('*')
+      .where('origin_account_id = :id', { id: originAccount.id })
+      .andWhere('description = :description', {
+        description: 'withdraw fee',
+      })
+      .orderBy('date', 'DESC')
+      .getRawMany();
+
     const transactions = [
       ...depositTransactions,
       ...withdrawTransactions,
       ...transferTransactions,
+      ...bankTransferFees,
+      ...bankDepositFees,
+      ...bankWithdrawFees,
     ];
     transactions
       .sort((a, b) => {

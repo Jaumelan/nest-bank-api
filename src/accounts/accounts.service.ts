@@ -13,7 +13,7 @@ import { CreateAccountData } from './../utils/createAccountData';
 import { UpdateAccountDto } from './dtos/update-account.dto';
 import { Users } from '../users/users.entity';
 import { AuthHelper } from '../users/auth/auth.helper';
-const bankId = 3;
+const bankId = 2;
 
 @Injectable()
 export class AccountsService {
@@ -145,7 +145,7 @@ export class AccountsService {
     });
 
     if (!account) {
-      throw new NotFoundException('Account not found');
+      throw new NotFoundException('Bank account not found');
     }
 
     account.balance = Number(account.balance) + value;
