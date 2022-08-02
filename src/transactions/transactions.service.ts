@@ -34,7 +34,7 @@ export class TransactionsService {
     return fees[type];
   }
 
-  async find(id: number): Promise<Transactions> {
+  async find(id: number, user: Users) {
     const transaction = await this.transactionRepository.findOne({
       where: { id },
     });
@@ -43,7 +43,59 @@ export class TransactionsService {
       throw new NotFoundException('Transaction not found');
     }
 
-    return transaction;
+    const accountSent = await this.accountRepository.findOne({
+      where: { id: transaction.origin_account_id },
+    });
+
+    const userSent = await this.userRepository.findOne({
+      where: { id: accountSent.user_id },
+    });
+
+    const accountReceived = await this.accountRepository.findOne({
+      where: { id: transaction.dest_account_id },
+    });
+
+    const userReceived = await this.userRepository.findOne({
+      where: { id: accountReceived.user_id },
+    });
+
+    if (accountSent.user_id == user.id) {
+      const data = {
+        id: transaction.id,
+        description: transaction.description + ' sent',
+        value: transaction.value,
+        date: transaction.date,
+        user_origin: userSent.name,
+        origin_account_id: transaction.origin_account_id,
+        dest_account: accountReceived,
+        user_dest: userReceived.name,
+      };
+      return data;
+    } else if (accountReceived.user_id == user.id) {
+      const data = {
+        id: transaction.id,
+        description: transaction.description + ' received',
+        value: transaction.value,
+        date: transaction.date,
+        user_origin: userSent.name,
+        origin_account: accountSent,
+        dest_account_id: transaction.dest_account_id,
+        user_dest: userReceived.name,
+      };
+      return data;
+    } else {
+      const data = {
+        id: transaction.id,
+        description: transaction.description,
+        value: transaction.value,
+        date: transaction.date,
+        origin_account: accountSent,
+        dest_account: accountReceived,
+        user_origin: userSent.name,
+        user_dest: userReceived.name,
+      };
+      return data;
+    }
   }
 
   async createDeposit(
@@ -193,13 +245,8 @@ export class TransactionsService {
     transferDto: TransferDto,
     user: Users,
   ): Promise<Transactions> {
-    const {
-      origin_account_id,
-      dest_cpf,
-      value,
-      dest_account_number,
-      dest_agency,
-    } = transferDto;
+    const { origin_account_id, value, dest_account_number, dest_agency } =
+      transferDto;
 
     const originAccount = await this.accountRepository.findOne({
       where: { id: origin_account_id },
@@ -213,29 +260,23 @@ export class TransactionsService {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 
-    const destUser = await this.userRepository.findOne({
-      where: { cpf: dest_cpf },
-    });
-
-    if (!destUser) {
-      throw new NotFoundException('Destination user not found');
-    }
-
     const destAccounts = await this.accountRepository.find({
-      where: { user_id: destUser.id },
+      where: { account_number: dest_account_number },
     });
 
     const destAccount = destAccounts.find((account) => {
-      if (account.account_number === dest_account_number) {
-        if (account.agency === dest_agency) {
-          return account;
-        }
+      if (account.agency === dest_agency) {
+        return account;
       }
     });
 
     if (!destAccount) {
       throw new NotFoundException('Destination account not found');
     }
+
+    /* const destUser = await this.userRepository.findOne({
+      where: { id: destAccount.user_id },
+    }); */
 
     if (originAccount.balance < value + fees.transfer) {
       throw new HttpException('Insufficient funds', HttpStatus.UNAUTHORIZED);
@@ -296,6 +337,7 @@ export class TransactionsService {
 
   async history(user: Users, statement: StatementDto) {
     const { id } = user;
+
     const { agency, account_number, digit_agency_v, digit_account_v } =
       statement;
 
@@ -338,7 +380,7 @@ export class TransactionsService {
       .setParameter('dest_account_id', originAccount.id)
       .getRawMany();
 
-    const transferTransactions = await this.transactionRepository
+    const transferTransactionsSent = await this.transactionRepository
       .createQueryBuilder()
       .select('*')
       .where('origin_account_id = :id', { id: originAccount.id })
@@ -347,6 +389,24 @@ export class TransactionsService {
       })
       .orderBy('date', 'DESC')
       .getRawMany();
+
+    transferTransactionsSent.forEach((transaction) => {
+      transaction.description = 'transfer sent';
+    });
+
+    const transferTransactionsReceived = await this.transactionRepository
+      .createQueryBuilder()
+      .select('*')
+      .where('dest_account_id = :id', { id: originAccount.id })
+      .andWhere('description = :description', {
+        description: 'transfer',
+      })
+      .orderBy('date', 'DESC')
+      .getRawMany();
+
+    transferTransactionsReceived.forEach((transaction) => {
+      transaction.description = 'transfer received';
+    });
 
     const bankTransferFees = await this.transactionRepository
       .createQueryBuilder()
@@ -381,7 +441,8 @@ export class TransactionsService {
     const transactions = [
       ...depositTransactions,
       ...withdrawTransactions,
-      ...transferTransactions,
+      ...transferTransactionsSent,
+      ...transferTransactionsReceived,
       ...bankTransferFees,
       ...bankDepositFees,
       ...bankWithdrawFees,

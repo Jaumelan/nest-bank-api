@@ -18,7 +18,7 @@ class CreateAccountData {
   }
 
   generateData() {
-    const agency = this.createAgencyAccount(8);
+    const agency = this.createAgencyAccount(4);
     const account_number = this.createAgencyAccount(5);
 
     const data = {

@@ -51,7 +51,7 @@ export class AccountsController {
     @Param('ver_agency') ver_agency: string,
     @Param('ver_account') ver_account: string,
   ): Promise<number> {
-    console.log(agency, account, ver_agency, ver_account);
+    //console.log(agency, account, ver_agency, ver_account);
     return this.accountService.findAccountId(
       agency,
       account,
@@ -67,7 +67,7 @@ export class AccountsController {
     @Body() data: UpdateAccountDto,
     @LogedUser() user: Users,
   ): Promise<Accounts> {
-    console.log(data);
+    //console.log(data);
     return this.accountService.updateAccount(parseInt(id), data, user);
   }
 }

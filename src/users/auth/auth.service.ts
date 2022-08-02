@@ -85,7 +85,9 @@ export class AuthService {
 
   public async login(body: LoginDto): Promise<LoginRsp | never> {
     const { cpf, password }: LoginDto = body;
+
     const user = await this.userRepository.findOne({ where: { cpf } });
+    //console.log(user);
 
     if (!user) {
       throw new NotFoundException('User not found');

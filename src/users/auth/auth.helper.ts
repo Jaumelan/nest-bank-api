@@ -26,7 +26,7 @@ export class AuthHelper {
   //Get User by user ID from decode token
   public async validateUser(decoded: any): Promise<Users> {
     const user = await this.userRepository.findOne({
-      where: { id: decoded.id },
+      where: { id: decoded.user.id },
     });
     if (!user) {
       throw new UnauthorizedException();
@@ -62,6 +62,7 @@ export class AuthHelper {
 
   //Validate JWT token, if it's valid, return user's data
   public async validateToken(token: string): Promise<Users> {
+    //console.log(token);
     const decoded = this.jwt.decode(token, null);
     if (!decoded) {
       throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);

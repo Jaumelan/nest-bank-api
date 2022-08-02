@@ -18,7 +18,7 @@ export class TransactionsController {
     @Body() createData: createTransactionDto,
     @LogedUser() user: Users,
   ): Promise<Transactions> {
-    console.log(user);
+    //console.log(user);
     return this.transactionsService.createDeposit(createData, user);
   }
 
@@ -51,7 +51,7 @@ export class TransactionsController {
 
   @Get('/:id')
   @UseGuards(AuthGuardService)
-  async getTransaction(@Param('id') id: number): Promise<Transactions> {
-    return this.transactionsService.find(id);
+  async getTransaction(@Param('id') id: number, @LogedUser() user: Users) {
+    return this.transactionsService.find(id, user);
   }
 }

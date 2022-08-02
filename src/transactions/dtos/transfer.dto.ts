@@ -31,8 +31,4 @@ export class TransferDto {
   @IsNotEmpty()
   @IsString()
   dest_agency_ver_code: string;
-
-  @IsNotEmpty()
-  @IsString()
-  dest_cpf: string;
 }
